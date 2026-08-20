@@ -1,5 +1,12 @@
-function App() {
-  return <h1>Hello, World!</h1>;
-}
+import { Route, Routes } from 'react-router-dom';
+import { HomePage } from '../pages/home';
+import { BoardPage } from '../pages/board';
 
-export default App;
+export const App = () => {
+  return (
+    <Routes>
+      <Route path="/" element={<HomePage />} />
+      <Route path="/board/:boardId" element={<BoardPage />} />
+    </Routes>
+  );
+};
