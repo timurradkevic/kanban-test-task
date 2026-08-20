@@ -1,0 +1,4 @@
+npx lint-staged
+npm run format:check
+npm run lint --workspaces --if-present 2>/dev/null || true
+npm run typecheck --workspaces --if-present 2>/dev/null || true
