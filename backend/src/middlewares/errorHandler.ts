@@ -1,5 +1,5 @@
 import type { NextFunction, Request, Response } from 'express';
-import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
+import { Prisma } from '../generated/prisma/client.js';
 
 export class AppError extends Error {
   public readonly statusCode: number;
@@ -22,8 +22,8 @@ export function errorHandler(
     return;
   }
 
-  if (err instanceof PrismaClientKnownRequestError) {
-    if (err.code === 'P2025') {
+  if (err instanceof Prisma.PrismaClientKnownRequestError) {
+    if ((err as Prisma.PrismaClientKnownRequestError).code === 'P2025') {
       res.status(404).json({ error: 'Record not found' });
       return;
     }
