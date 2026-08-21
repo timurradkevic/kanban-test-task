@@ -5,6 +5,21 @@ import { ColumnType } from '../generated/prisma/client.js';
 type BoardData = Pick<Board, 'name'>;
 
 export const boardService = {
+  getBoardById: async (id: string) => {
+    return prisma.board.findUnique({
+      where: { id },
+      include: {
+        columns: {
+          orderBy: { order: 'asc' },
+          include: {
+            tasks: {
+              orderBy: { order: 'asc' },
+            },
+          },
+        },
+      },
+    });
+  },
   createBoard: async (boardData: BoardData) => {
     return prisma.board.create({
       data: {
@@ -17,7 +32,16 @@ export const boardService = {
           ],
         },
       },
-      include: { columns: true },
+      include: {
+        columns: {
+          orderBy: { order: 'asc' },
+          include: {
+            tasks: {
+              orderBy: { order: 'asc' },
+            },
+          },
+        },
+      },
     });
   },
 };

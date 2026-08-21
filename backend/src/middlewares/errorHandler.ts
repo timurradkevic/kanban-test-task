@@ -17,20 +17,15 @@ export function errorHandler(
   res: Response,
   _next: NextFunction,
 ): void {
-  if (err instanceof AppError) {
-    res.status(err.statusCode).json({ error: err.message });
-    return;
-  }
-
   if (err instanceof Prisma.PrismaClientKnownRequestError) {
     if ((err as Prisma.PrismaClientKnownRequestError).code === 'P2025') {
-      res.status(404).json({ error: 'Record not found' });
+      res.status(404).json({ message: 'Record not found' });
       return;
     }
-    res.status(400).json({ error: 'Database request error' });
+    res.status(400).json({ message: 'Database request error' });
     return;
   }
 
   console.error(err);
-  res.status(500).json({ error: 'Internal server error' });
+  res.status(500).json({ message: 'Internal server error' });
 }
