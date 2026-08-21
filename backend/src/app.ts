@@ -1,16 +1,16 @@
 import express from 'express';
-import { Request, Response } from 'express';
+import { errorHandler } from './middlewares/errorHandler.js';
+import { router } from './routes/index.js';
 
 const app = express();
 
 app.use(express.json());
+app.use(router);
 
-app.get('/health', (_req: Request, res: Response) => {
-  res.status(200).json({ status: 'OK' });
-});
-
-app.use((_req: Request, res: Response) => {
+app.use((_req, res) => {
   res.status(404).json({ error: 'Not Found' });
 });
+
+app.use(errorHandler);
 
 export default app;
