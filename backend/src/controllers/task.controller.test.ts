@@ -45,7 +45,7 @@ function makeColumn(overrides: Partial<Column> = {}): Column {
 function makeTask(overrides: Partial<Task> = {}): Task {
   return {
     id: TASK_ID,
-    title: 'Task',
+    name: 'Task',
     description: null,
     order: 0,
     columnId: COLUMN_ID,
@@ -180,19 +180,19 @@ describe('taskController', () => {
       vi.mocked(columnService.getColumnById).mockResolvedValue(
         makeColumn() as unknown as never,
       );
-      const task = makeTask({ title: 'New task' });
+      const task = makeTask({ name: 'New task' });
       vi.mocked(taskService.createTask).mockResolvedValue(task);
 
       const req = makeReq<Request<{ columnId: string }>>({
         params: { columnId: COLUMN_ID },
-        body: { title: 'New task', description: 'Some details' },
+        body: { name: 'New task', description: 'Some details' },
       });
       const res = makeRes();
 
       await taskController.createTask(req, res);
 
       expect(taskService.createTask).toHaveBeenCalledWith({
-        title: 'New task',
+        name: 'New task',
         description: 'Some details',
         columnId: COLUMN_ID,
       });
@@ -208,14 +208,14 @@ describe('taskController', () => {
 
       const req = makeReq<Request<{ columnId: string }>>({
         params: { columnId: COLUMN_ID },
-        body: { title: 'New task' },
+        body: { name: 'New task' },
       });
       const res = makeRes();
 
       await taskController.createTask(req, res);
 
       expect(taskService.createTask).toHaveBeenCalledWith({
-        title: 'New task',
+        name: 'New task',
         description: null,
         columnId: COLUMN_ID,
       });
@@ -228,7 +228,7 @@ describe('taskController', () => {
 
       const req = makeReq<Request<{ columnId: string }>>({
         params: { columnId: COLUMN_ID },
-        body: { title: 'New task' },
+        body: { name: 'New task' },
       });
       const res = makeRes();
 
@@ -239,10 +239,10 @@ describe('taskController', () => {
       expect(taskService.createTask).not.toHaveBeenCalled();
     });
 
-    it('rejects an empty title and never calls the column or task service', async () => {
+    it('rejects an empty name and never calls the column or task service', async () => {
       const req = makeReq<Request<{ columnId: string }>>({
         params: { columnId: COLUMN_ID },
-        body: { title: '' },
+        body: { name: '' },
       });
       const res = makeRes();
 
@@ -253,7 +253,7 @@ describe('taskController', () => {
       expect(taskService.createTask).not.toHaveBeenCalled();
     });
 
-    it('rejects a missing title', async () => {
+    it('rejects a missing name', async () => {
       const req = makeReq<Request<{ columnId: string }>>({
         params: { columnId: COLUMN_ID },
         body: {},
@@ -268,20 +268,20 @@ describe('taskController', () => {
   });
 
   describe('updateTask', () => {
-    it('updates the title and returns the updated task', async () => {
-      const updated = makeTask({ title: 'Renamed' });
+    it('updates the name and returns the updated task', async () => {
+      const updated = makeTask({ name: 'Renamed' });
       vi.mocked(taskService.updateTask).mockResolvedValue(updated);
 
       const req = makeReq<Request<{ taskId: string }>>({
         params: { taskId: TASK_ID },
-        body: { title: 'Renamed' },
+        body: { name: 'Renamed' },
       });
       const res = makeRes();
 
       await taskController.updateTask(req, res);
 
       expect(taskService.updateTask).toHaveBeenCalledWith(TASK_ID, {
-        title: 'Renamed',
+        name: 'Renamed',
       });
       expect(res.status).toHaveBeenCalledWith(200);
       expect(res.json).toHaveBeenCalledWith(updated);
@@ -292,14 +292,14 @@ describe('taskController', () => {
 
       const req = makeReq<Request<{ taskId: string }>>({
         params: { taskId: TASK_ID },
-        body: { title: 'Renamed', description: 'Updated details' },
+        body: { name: 'Renamed', description: 'Updated details' },
       });
       const res = makeRes();
 
       await taskController.updateTask(req, res);
 
       expect(taskService.updateTask).toHaveBeenCalledWith(TASK_ID, {
-        title: 'Renamed',
+        name: 'Renamed',
         description: 'Updated details',
       });
     });
@@ -316,14 +316,14 @@ describe('taskController', () => {
       await taskController.updateTask(req, res);
 
       expect(taskService.updateTask).toHaveBeenCalledWith(TASK_ID, {
-        title: undefined,
+        name: undefined,
       });
     });
 
-    it('rejects an empty title string', async () => {
+    it('rejects an empty name string', async () => {
       const req = makeReq<Request<{ taskId: string }>>({
         params: { taskId: TASK_ID },
-        body: { title: '' },
+        body: { name: '' },
       });
       const res = makeRes();
 
@@ -336,7 +336,7 @@ describe('taskController', () => {
     it('rejects a non-UUID taskId', async () => {
       const req = makeReq<Request<{ taskId: string }>>({
         params: { taskId: 'nope' },
-        body: { title: 'Renamed' },
+        body: { name: 'Renamed' },
       });
       const res = makeRes();
 

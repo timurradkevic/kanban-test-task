@@ -27,7 +27,7 @@ type TransactionClient = Parameters<typeof prisma.$transaction>[0] extends (
 function makeTask(overrides: Partial<Task> = {}): Task {
   return {
     id: 'task-1',
-    title: 'Task',
+    name: 'Task',
     description: null,
     order: 0,
     columnId: 'column-1',
@@ -82,7 +82,7 @@ describe('taskService', () => {
       vi.mocked(prisma.task.create).mockResolvedValue(created);
 
       const result = await taskService.createTask({
-        title: 'First task',
+        name: 'First task',
         description: null,
         columnId: 'column-1',
       });
@@ -93,7 +93,7 @@ describe('taskService', () => {
       });
       expect(prisma.task.create).toHaveBeenCalledWith({
         data: {
-          title: 'First task',
+          name: 'First task',
           description: null,
           columnId: 'column-1',
           order: 0,
@@ -110,14 +110,14 @@ describe('taskService', () => {
       vi.mocked(prisma.task.create).mockResolvedValue(created);
 
       await taskService.createTask({
-        title: 'Second task',
+        name: 'Second task',
         description: null,
         columnId: 'column-1',
       });
 
       expect(prisma.task.create).toHaveBeenCalledWith({
         data: {
-          title: 'Second task',
+          name: 'Second task',
           description: null,
           columnId: 'column-1',
           order: 3500,
@@ -128,16 +128,16 @@ describe('taskService', () => {
 
   describe('updateTask', () => {
     it('updates the given fields and returns the updated task', async () => {
-      const updated = makeTask({ title: 'Renamed' });
+      const updated = makeTask({ name: 'Renamed' });
       vi.mocked(prisma.task.update).mockResolvedValue(updated);
 
       const result = await taskService.updateTask('task-1', {
-        title: 'Renamed',
+        name: 'Renamed',
       });
 
       expect(prisma.task.update).toHaveBeenCalledWith({
         where: { id: 'task-1' },
-        data: { title: 'Renamed' },
+        data: { name: 'Renamed' },
       });
       expect(result).toEqual(updated);
     });

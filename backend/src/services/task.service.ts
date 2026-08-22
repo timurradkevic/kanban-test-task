@@ -2,8 +2,8 @@ import { prisma } from '../config/prisma.js';
 import type { Prisma, Task } from '../generated/prisma/client.js';
 import { AppError } from '../utils/catchError.js';
 
-type TaskData = Pick<Task, 'title' | 'description' | 'columnId'>;
-type TaskUpdateData = Partial<Pick<Task, 'title' | 'description'>>;
+type TaskData = Pick<Task, 'name' | 'description' | 'columnId'>;
+type TaskUpdateData = Partial<Pick<Task, 'name' | 'description'>>;
 
 const GAP = 1000;
 

@@ -5,7 +5,7 @@ import { columnService } from '../services/column.service.js';
 import { AppError } from '../utils/catchError.js';
 
 const TaskData = z.object({
-  title: z.string().trim().min(1, { message: 'Task title is required' }),
+  name: z.string().trim().min(1, { message: 'Task name is required' }),
   description: z.string().optional(),
 });
 
@@ -18,10 +18,10 @@ const TaskIdParam = z.object({
 });
 
 const TaskUpdateData = z.object({
-  title: z
+  name: z
     .string()
     .trim()
-    .min(1, { message: 'Task title is required' })
+    .min(1, { message: 'Task name is required' })
     .optional(),
   description: z.string().optional(),
 });
@@ -54,7 +54,7 @@ export const taskController = {
     res.status(200).json(task);
   },
   async createTask(req: Request, res: Response) {
-    const { title, description } = TaskData.parse(req.body);
+    const { name, description } = TaskData.parse(req.body);
     const { columnId } = TaskParams.parse(req.params);
     const column = await columnService.getColumnById(columnId);
     if (!column) {
@@ -62,7 +62,7 @@ export const taskController = {
     }
 
     const task = await taskService.createTask({
-      title,
+      name,
       description: description ?? null,
       columnId,
     });
@@ -71,10 +71,10 @@ export const taskController = {
   },
   async updateTask(req: Request, res: Response) {
     const { taskId } = TaskIdParam.parse(req.params);
-    const { title, description } = TaskUpdateData.parse(req.body);
+    const { name, description } = TaskUpdateData.parse(req.body);
 
     const task = await taskService.updateTask(taskId, {
-      title,
+      name,
       ...(description !== undefined ? { description } : {}),
     });
 
