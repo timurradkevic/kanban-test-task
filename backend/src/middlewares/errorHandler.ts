@@ -1,16 +1,6 @@
 import type { NextFunction, Request, Response } from 'express';
 import { Prisma } from '../generated/prisma/client.js';
 
-export class AppError extends Error {
-  public readonly statusCode: number;
-
-  constructor(message: string, statusCode = 500) {
-    super(message);
-    this.statusCode = statusCode;
-    Object.setPrototypeOf(this, AppError.prototype);
-  }
-}
-
 export function errorHandler(
   err: unknown,
   _req: Request,

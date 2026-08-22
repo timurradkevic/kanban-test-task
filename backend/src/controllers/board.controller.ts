@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { boardService } from '../services/board.service.js';
-import { AppError } from '../middlewares/errorHandler.js';
+import { AppError } from '../utils/catchError.js';
 import * as z from 'zod';
 
 const BoardData = z.object({

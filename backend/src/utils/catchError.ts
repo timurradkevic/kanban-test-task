@@ -1,7 +1,16 @@
 import type { NextFunction, Request, RequestHandler, Response } from 'express';
 import type { ParamsDictionary } from 'express-serve-static-core';
 import * as z from 'zod';
-import { AppError } from '../middlewares/errorHandler.js';
+
+export class AppError extends Error {
+  public readonly statusCode: number;
+
+  constructor(message: string, statusCode = 500) {
+    super(message);
+    this.statusCode = statusCode;
+    Object.setPrototypeOf(this, AppError.prototype);
+  }
+}
 
 export const catchError =
   <P = ParamsDictionary, ResBody = unknown, ReqBody = unknown>(
