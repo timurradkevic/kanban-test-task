@@ -1,6 +1,15 @@
 {
   "extends": "../tsconfig.base.json",
   "compilerOptions": {
+    "paths": {
+      "@/*": ["./src/*"],
+      "@app/*": ["./src/app/*"],
+      "@pages/*": ["./src/pages/*"],
+      "@widgets/*": ["./src/widgets/*"],
+      "@features/*": ["./src/features/*"],
+      "@entities/*": ["./src/entities/*"],
+      "@shared/*": ["./src/shared/*"]
+    },
     "lib": ["DOM", "DOM.Iterable", "ES2022"],
     "jsx": "react-jsx"
   },
