@@ -9,3 +9,4 @@ taskRouter.post('/', catchError(taskController.createTask));
 taskRouter.get('/:taskId', catchError(taskController.getTaskById));
 taskRouter.patch('/:taskId', catchError(taskController.updateTask));
 taskRouter.post('/:taskId/move', catchError(taskController.moveTask));
+taskRouter.delete('/:taskId', catchError(taskController.deleteTask));

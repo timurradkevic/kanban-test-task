@@ -152,4 +152,10 @@ export const taskService = {
       return lastTask ? lastTask.order + GAP : 0;
     }
   },
+  async deleteTask(taskId: string) {
+    const task = await prisma.task.delete({
+      where: { id: taskId },
+    });
+    return task;
+  },
 };

@@ -105,4 +105,11 @@ export const taskController = {
 
     res.status(200).json(updatedTask);
   },
+  async deleteTask(req: Request, res: Response) {
+    const { taskId } = TaskIdParam.parse(req.params);
+
+    await taskService.deleteTask(taskId);
+
+    res.sendStatus(204);
+  },
 };
