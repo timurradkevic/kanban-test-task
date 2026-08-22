@@ -42,6 +42,8 @@ model Task {
   columnId    String
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+
+  @@unique([columnId, order], name: "unique_column_order")
 }
 
 enum ColumnType {

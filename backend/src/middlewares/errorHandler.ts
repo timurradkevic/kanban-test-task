@@ -8,8 +8,31 @@ export function errorHandler(
   _next: NextFunction,
 ): void {
   if (err instanceof Prisma.PrismaClientKnownRequestError) {
-    if ((err as Prisma.PrismaClientKnownRequestError).code === 'P2025') {
+    console.error(
+      'PrismaClientKnownRequestError:',
+      err.message,
+      'Code:',
+      err.code,
+      'Meta:',
+      err.meta,
+    );
+
+    if (err.code === 'P2025') {
       res.status(404).json({ message: 'Record not found' });
+      return;
+    }
+    if (err.code === 'P2002') {
+      res.status(400).json({
+        message: 'Unique constraint violation',
+        fields: err.meta?.target,
+      });
+      return;
+    }
+    if (err.code === 'P2003') {
+      res.status(400).json({
+        message: 'Foreign key constraint violation',
+        fields: err.meta?.field_name,
+      });
       return;
     }
     res.status(400).json({ message: 'Database request error' });
