@@ -89,6 +89,17 @@ export const taskService = {
     });
     return task;
   },
+  computeOrder(before: number | null, after: number | null) {
+    if (before !== null && after !== null) {
+      return Math.floor((before + after) / 2);
+    } else if (before !== null) {
+      return before + GAP;
+    } else if (after !== null) {
+      return after - GAP;
+    } else {
+      throw new AppError('Both before and after cannot be null', 400);
+    }
+  },
   async calculateNewOrder(
     tx: Prisma.TransactionClient,
     taskId: string,
@@ -131,7 +142,7 @@ export const taskService = {
         );
       }
 
-      return Math.floor((beforeTask.order + afterTask.order) / 2);
+      return taskService.computeOrder(beforeTask.order, afterTask.order);
     } else if (beforeTaskId) {
       const beforeTask = await assertIsValidBeforeId(
         tx,
@@ -139,11 +150,11 @@ export const taskService = {
         beforeTaskId,
       );
 
-      return beforeTask.order + GAP;
+      return taskService.computeOrder(beforeTask.order, null);
     } else if (afterTaskId) {
       const afterTask = await assertIsValidAfterId(tx, columnId, afterTaskId);
 
-      return afterTask.order - GAP;
+      return taskService.computeOrder(null, afterTask.order);
     } else {
       const lastTask = await tx.task.findFirst({
         where: { columnId: columnId },
@@ -151,6 +162,23 @@ export const taskService = {
       });
       return lastTask ? lastTask.order + GAP : 0;
     }
+  },
+  async moveTaskWithOrder(
+    taskId: string,
+    newColumnId: string,
+    beforeTaskId?: string,
+    afterTaskId?: string,
+  ) {
+    return await prisma.$transaction(async (tx) => {
+      const newOrder = await taskService.calculateNewOrder(
+        tx,
+        taskId,
+        newColumnId,
+        beforeTaskId,
+        afterTaskId,
+      );
+      return await taskService.moveTask(tx, taskId, newColumnId, newOrder);
+    });
   },
   async deleteTask(taskId: string) {
     const task = await prisma.task.delete({

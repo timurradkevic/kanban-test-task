@@ -3,7 +3,6 @@ import { taskService } from '../services/task.service.js';
 import * as z from 'zod';
 import { columnService } from '../services/column.service.js';
 import { AppError } from '../utils/catchError.js';
-import { prisma } from '../config/prisma.js';
 
 const TaskData = z.object({
   title: z.string().trim().min(1, { message: 'Task title is required' }),
@@ -92,16 +91,12 @@ export const taskController = {
       throw new AppError('Column not found', 404);
     }
 
-    const updatedTask = await prisma.$transaction(async (tx) => {
-      const newOrder = await taskService.calculateNewOrder(
-        tx,
-        taskId,
-        newColumnId,
-        beforeTaskId,
-        afterTaskId,
-      );
-      return await taskService.moveTask(tx, taskId, newColumnId, newOrder);
-    });
+    const updatedTask = await taskService.moveTaskWithOrder(
+      taskId,
+      newColumnId,
+      beforeTaskId,
+      afterTaskId,
+    );
 
     res.status(200).json(updatedTask);
   },
