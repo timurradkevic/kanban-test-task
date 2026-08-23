@@ -1,5 +1,5 @@
 import { useCreateBoardMutation } from '@entities/board';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
 
@@ -10,6 +10,7 @@ export const HomePage = () => {
   const [boardNameError, setBoardNameError] = useState<boolean>(false);
   const navigate = useNavigate();
   const [createBoard, { isLoading }] = useCreateBoardMutation();
+  const isSubmittingRef = useRef(false);
 
   const handleGoToBoard = () => {
     if (!boardId.trim()) {
@@ -21,18 +22,23 @@ export const HomePage = () => {
   };
 
   const handleCreateBoard = async (name: string) => {
+    if (isSubmittingRef.current) return;
+
     if (!name.trim()) {
       setBoardNameError(true);
       toast.error('Board name cannot be empty');
       return;
     }
 
+    isSubmittingRef.current = true;
     try {
       const board = await createBoard({ name: name.trim() }).unwrap();
       navigate(`/board/${board.id}`);
     } catch (err) {
       toast.error('Failed to create board');
       console.error('Failed to create board:', err);
+    } finally {
+      isSubmittingRef.current = false;
     }
   };
 
@@ -82,6 +88,7 @@ export const HomePage = () => {
         <input
           className={`w-full border border-gray-300 rounded px-2 py-1 mr-2 mb-4 hover:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-500 ${boardNameError ? 'border-red-500' : ''}`}
           value={newBoardName}
+          disabled={isLoading}
           onChange={(e) => {
             setNewBoardName(e.target.value);
             if (boardNameError) setBoardNameError(false);
