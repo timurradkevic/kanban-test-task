@@ -1,8 +1,29 @@
+import { useState } from 'react';
 import { useGetBoardQuery } from '@entities/board';
 import { ColumnCard } from '@entities/column';
 import { BackButton, CopyButton } from '@shared/ui/Buttons';
 import { useNavigate } from 'react-router-dom';
 import { NotFound } from '@widgets/notFound';
+import {
+  DndContext,
+  DragOverlay,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  type DragStartEvent,
+  type DragOverEvent,
+  type CollisionDetection,
+  pointerWithin,
+  rectIntersection,
+  closestCenter,
+  getFirstCollision,
+} from '@dnd-kit/core';
+import {
+  SortableContext,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
+import { handleDragEnd, resolveColumnId } from '@/features/move-task';
+import { useMoveTaskMutation, TaskItemPreview } from '@entities/task';
 
 const SkeletonBoard = () => {
   return (
@@ -40,7 +61,18 @@ export const Board = ({ boardId }: { boardId: string | undefined }) => {
   } = useGetBoardQuery(boardId || '', {
     skip: !boardId,
   });
+  const pointerSensor = useSensor(PointerSensor, {
+    activationConstraint: {
+      distance: 8,
+    },
+  });
+  const sensors = useSensors(pointerSensor);
+  const [moveTask, { isLoading: isMoving }] = useMoveTaskMutation();
   const navigate = useNavigate();
+
+  const [activeTaskId, setActiveTaskId] = useState<string | null>(null);
+  const [overColumnId, setOverColumnId] = useState<string | null>(null);
+
   const isNotFoundError = (
     currentError: typeof error,
   ): currentError is { status: number; data: unknown } =>
@@ -86,6 +118,57 @@ export const Board = ({ boardId }: { boardId: string | undefined }) => {
     );
   }
 
+  const collisionDetectionStrategy: CollisionDetection = (args) => {
+    const pointerCollisions = pointerWithin(args);
+    const intersections =
+      pointerCollisions.length > 0 ? pointerCollisions : rectIntersection(args);
+
+    let overId = getFirstCollision(intersections, 'id') as string | undefined;
+
+    if (overId != null) {
+      const column = board.columns.find((c) => c.id === overId);
+
+      if (column && column.tasks.length > 0) {
+        const taskIds = column.tasks.map((task) => task.id);
+        const refined = closestCenter({
+          ...args,
+          droppableContainers: args.droppableContainers.filter((container) =>
+            taskIds.includes(container.id as string),
+          ),
+        });
+        const refinedId = getFirstCollision(refined, 'id') as
+          string | undefined;
+        if (refinedId != null) {
+          overId = refinedId;
+        }
+      }
+    }
+
+    return overId != null ? [{ id: overId }] : [];
+  };
+
+  const allTasks = board.columns.flatMap((column) => column.tasks);
+  const activeTask = activeTaskId
+    ? allTasks.find((task) => task.id === activeTaskId)
+    : null;
+
+  const onDragStart = (event: DragStartEvent) => {
+    setActiveTaskId(event.active.id as string);
+  };
+
+  const onDragOver = (event: DragOverEvent) => {
+    const columnId = resolveColumnId(
+      event.over?.id as string | undefined,
+      board.columns,
+    );
+    setOverColumnId(columnId ?? null);
+  };
+
+  const resetDragState = () => {
+    setActiveTaskId(null);
+    setOverColumnId(null);
+  };
+
   return (
     <>
       <BackButton navigate={navigate} />
@@ -96,9 +179,40 @@ export const Board = ({ boardId }: { boardId: string | undefined }) => {
           <CopyButton textToCopy={board.id} textLabel="Board ID" />
         </div>
         <div className="mt-4 grid gap-4 md:grid-rows-1 lg:grid-cols-3">
-          {board.columns.map((column) => (
-            <ColumnCard key={column.id} column={column} />
-          ))}
+          <DndContext
+            sensors={sensors}
+            collisionDetection={collisionDetectionStrategy}
+            onDragStart={onDragStart}
+            onDragOver={onDragOver}
+            onDragEnd={(event) => {
+              handleDragEnd(event, board.id, board.columns, moveTask);
+              resetDragState();
+            }}
+            onDragCancel={resetDragState}
+          >
+            {board.columns.map((column) => (
+              <SortableContext
+                key={column.id}
+                items={column.tasks.map((task) => task.id)}
+                strategy={verticalListSortingStrategy}
+              >
+                <ColumnCard
+                  column={column}
+                  isDropTarget={column.id === overColumnId}
+                  isDragDisabled={isMoving}
+                />
+              </SortableContext>
+            ))}
+
+            <DragOverlay>
+              {activeTask ? (
+                <TaskItemPreview
+                  name={activeTask.name}
+                  description={activeTask.description ?? undefined}
+                />
+              ) : null}
+            </DragOverlay>
+          </DndContext>
         </div>
       </div>
     </>

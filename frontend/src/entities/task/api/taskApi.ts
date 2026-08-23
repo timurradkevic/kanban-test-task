@@ -1,5 +1,6 @@
 import { baseApi } from '@shared/api/api';
-import type { Task, TaskCreateData } from '@entities/task';
+import type { Task, TaskCreateData, TaskMoveData } from '@entities/task';
+import { optimisticUpdateTaskPosition } from '@/features/move-task';
 
 export const taskApi = baseApi.injectEndpoints({
   endpoints: (build) => ({
@@ -18,7 +19,49 @@ export const taskApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: ['Board'],
     }),
+    moveTask: build.mutation<
+      Task,
+      TaskMoveData & {
+        taskId: string;
+        boardId: string;
+        previousColumnId: string;
+      }
+    >({
+      query: ({
+        taskId,
+        newColumnId,
+        afterTaskId,
+        beforeTaskId,
+        previousColumnId,
+      }) => ({
+        url: `/columns/${previousColumnId}/tasks/${taskId}/move`,
+        method: 'POST',
+        body: { newColumnId, afterTaskId, beforeTaskId },
+      }),
+      async onQueryStarted(
+        {
+          taskId,
+          boardId,
+          newColumnId,
+          beforeTaskId,
+          afterTaskId,
+          previousColumnId,
+        },
+        { dispatch, queryFulfilled },
+      ) {
+        await optimisticUpdateTaskPosition(dispatch, {
+          taskId,
+          newColumnId,
+          beforeTaskId,
+          afterTaskId,
+          boardId,
+          previousColumnId,
+          queryFulfilled,
+        });
+      },
+    }),
   }),
 });
 
-export const { useGetTaskQuery, useCreateTaskMutation } = taskApi;
+export const { useGetTaskQuery, useCreateTaskMutation, useMoveTaskMutation } =
+  taskApi;

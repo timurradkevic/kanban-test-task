@@ -1,11 +1,12 @@
 import { prisma } from '../config/prisma.js';
-import type { Prisma, Task } from '../generated/prisma/client.js';
+import { Prisma, type Task } from '../generated/prisma/client.js';
 import { AppError } from '../utils/catchError.js';
 
 type TaskData = Pick<Task, 'name' | 'description' | 'columnId'>;
 type TaskUpdateData = Partial<Pick<Task, 'name' | 'description'>>;
 
 const GAP = 1000;
+const MAX_MOVE_RETRIES = 3;
 
 const assertIsValidAfterId = async (
   tx: Prisma.TransactionClient,
@@ -40,6 +41,13 @@ const assertIsValidBeforeId = async (
   }
   return beforeTask;
 };
+
+const isRetryableMoveError = (error: unknown): boolean => {
+  if (!(error instanceof Prisma.PrismaClientKnownRequestError)) return false;
+  return error.code === 'P2002' || error.code === 'P2034';
+};
+
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 export const taskService = {
   async getTasksByColumnId(columnId: string) {
@@ -169,16 +177,40 @@ export const taskService = {
     beforeTaskId?: string,
     afterTaskId?: string,
   ) {
-    return await prisma.$transaction(async (tx) => {
-      const newOrder = await taskService.calculateNewOrder(
-        tx,
-        taskId,
-        newColumnId,
-        beforeTaskId,
-        afterTaskId,
-      );
-      return await taskService.moveTask(tx, taskId, newColumnId, newOrder);
-    });
+    let lastError: unknown;
+
+    for (let attempt = 0; attempt < MAX_MOVE_RETRIES; attempt++) {
+      try {
+        return await prisma.$transaction(
+          async (tx) => {
+            const newOrder = await taskService.calculateNewOrder(
+              tx,
+              taskId,
+              newColumnId,
+              beforeTaskId,
+              afterTaskId,
+            );
+            return await taskService.moveTask(
+              tx,
+              taskId,
+              newColumnId,
+              newOrder,
+            );
+          },
+          { isolationLevel: Prisma.TransactionIsolationLevel.Serializable },
+        );
+      } catch (error) {
+        lastError = error;
+
+        if (!isRetryableMoveError(error)) {
+          throw error;
+        }
+
+        await sleep(20 + Math.random() * 40);
+      }
+    }
+
+    throw lastError;
   },
   async deleteTask(taskId: string) {
     const task = await prisma.task.delete({

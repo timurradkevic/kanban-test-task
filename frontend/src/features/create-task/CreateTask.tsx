@@ -15,7 +15,7 @@ export const AddTaskButton = ({ columnId }: { columnId: string }) => {
     <div>
       <button
         onClick={toggleFormVisibility}
-        className="w-full bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 hover:cursor-pointer mt-2"
+        className="w-full bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 hover:cursor-pointer mt-2 select-none"
       >
         <Plus className="inline-block mr-2 w-4 h-4" />
         Add Task

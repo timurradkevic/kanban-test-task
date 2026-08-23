@@ -4,5 +4,10 @@ export type {
   TaskUpdateData,
   TaskMoveData,
 } from './model/types';
-export { useGetTaskQuery, useCreateTaskMutation } from './api/taskApi';
+export {
+  useGetTaskQuery,
+  useCreateTaskMutation,
+  useMoveTaskMutation,
+} from './api/taskApi';
 export { TaskItem } from './ui/TaskItem';
+export { TaskItemPreview } from './ui/TaskItemPreview';
