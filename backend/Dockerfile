@@ -53,4 +53,8 @@ ENV CORS_ORIGIN=""
 EXPOSE 3000
 
 # Applies pending Prisma migrations, then starts the server.
-CMD ["sh", "-c", "npx prisma migrate deploy --config prisma.config.ts && node dist/server.js"]
+# Note: tsconfig has no explicit rootDir, and its `include` covers both
+# src/ and prisma.config.ts (which lives next to src/, not inside it) — so
+# tsc infers the backend/ folder itself as rootDir and mirrors that under
+# dist/, landing the compiled entrypoint at dist/src/server.js.
+CMD ["sh", "-c", "npx prisma migrate deploy --config prisma.config.ts && node dist/src/server.js"]
