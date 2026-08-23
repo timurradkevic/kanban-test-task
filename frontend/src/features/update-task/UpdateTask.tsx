@@ -1,12 +1,12 @@
+import { useUpdateTaskMutation, type Task } from '@entities/task';
+import { Pen, X } from 'lucide-react';
 import { useState } from 'react';
 import { createPortal } from 'react-dom';
-import { useParams } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { useCreateTaskMutation } from '@entities/task';
-import { Plus, X } from 'lucide-react';
+import { useParams } from 'react-router-dom';
 import { useModalLock } from '@shared/lib';
 
-export const AddTaskButton = ({ columnId }: { columnId: string }) => {
+export const UpdateTaskButton = ({ task }: { task: Task }) => {
   const [isFormVisible, setIsFormVisible] = useState(false);
   useModalLock(isFormVisible);
 
@@ -18,31 +18,36 @@ export const AddTaskButton = ({ columnId }: { columnId: string }) => {
     <div>
       <button
         onClick={toggleFormVisibility}
-        className="w-full bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 hover:cursor-pointer mt-2 select-none"
+        className="bg-blue-500 text-white rounded hover:bg-blue-600 hover:cursor-pointer mt-2 select-none flex items-center justify-center w-8 h-8"
       >
-        <Plus className="inline-block mr-2 w-4 h-4" />
-        Add Task
+        <Pen className="inline-block w-4 h-4" />
       </button>
 
       {isFormVisible &&
         createPortal(
-          <TaskFormCreate columnId={columnId} onClose={toggleFormVisibility} />,
+          <TaskFormUpdate
+            task={task}
+            columnId={task.columnId}
+            onClose={toggleFormVisibility}
+          />,
           document.body,
         )}
     </div>
   );
 };
 
-const TaskFormCreate = ({
+const TaskFormUpdate = ({
+  task,
   columnId,
   onClose,
 }: {
+  task: Task;
   columnId: string;
   onClose: () => void;
 }) => {
-  const [createTask] = useCreateTaskMutation();
-  const [name, setName] = useState('');
-  const [description, setDescription] = useState('');
+  const [updateTask] = useUpdateTaskMutation();
+  const [name, setName] = useState(task.name);
+  const [description, setDescription] = useState(task.description || '');
   const { boardId } = useParams<{ boardId: string }>();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -50,16 +55,17 @@ const TaskFormCreate = ({
     if (!boardId || !columnId) return;
 
     try {
-      await createTask({
+      await updateTask({
+        taskId: task.id,
         name: name.trim(),
         description: description.trim(),
         columnId,
       }).unwrap();
 
-      toast.success('Task created successfully');
+      toast.success('Task updated successfully');
       onClose();
     } catch {
-      toast.error('Failed to create task');
+      toast.error('Failed to update task');
     }
   };
 
@@ -73,7 +79,7 @@ const TaskFormCreate = ({
         onClick={(e) => e.stopPropagation()}
       >
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-lg font-semibold">New Task</h2>
+          <h2 className="text-lg font-semibold">Update Task</h2>
           <button
             onClick={onClose}
             className="text-gray-400 hover:text-gray-600 hover:cursor-pointer"
@@ -120,7 +126,7 @@ const TaskFormCreate = ({
               type="submit"
               className="rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600 hover:cursor-pointer"
             >
-              Create
+              Update
             </button>
           </div>
         </form>

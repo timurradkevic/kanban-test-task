@@ -24,6 +24,8 @@ import {
 } from '@dnd-kit/sortable';
 import { handleDragEnd, resolveColumnId } from '@/features/move-task';
 import { useMoveTaskMutation, TaskItemPreview } from '@entities/task';
+import { useAppSelector } from '@app/store/hooks';
+import { selectIsAnyModalOpen } from '@shared/model';
 
 const SkeletonBoard = () => {
   return (
@@ -61,6 +63,7 @@ export const Board = ({ boardId }: { boardId: string | undefined }) => {
   } = useGetBoardQuery(boardId || '', {
     skip: !boardId,
   });
+  const isAnyModalOpen = useAppSelector(selectIsAnyModalOpen);
   const pointerSensor = useSensor(PointerSensor, {
     activationConstraint: {
       distance: 8,
@@ -180,7 +183,7 @@ export const Board = ({ boardId }: { boardId: string | undefined }) => {
         </div>
         <div className="mt-4 grid gap-4 md:grid-rows-1 lg:grid-cols-3">
           <DndContext
-            sensors={sensors}
+            sensors={isAnyModalOpen ? [] : sensors}
             collisionDetection={collisionDetectionStrategy}
             onDragStart={onDragStart}
             onDragOver={onDragOver}

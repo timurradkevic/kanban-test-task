@@ -8,6 +8,8 @@ export {
   useGetTaskQuery,
   useCreateTaskMutation,
   useMoveTaskMutation,
+  useUpdateTaskMutation,
+  useDeleteTaskMutation,
 } from './api/taskApi';
 export { TaskItem } from './ui/TaskItem';
 export { TaskItemPreview } from './ui/TaskItemPreview';

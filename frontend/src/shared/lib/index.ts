@@ -1,0 +1,1 @@
+export { useModalLock } from './useModalLock';

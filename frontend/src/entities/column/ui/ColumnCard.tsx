@@ -31,13 +31,7 @@ export const ColumnCard = ({
         {column.tasks &&
           column.tasks.length > 0 &&
           column.tasks.map((task) => (
-            <TaskItem
-              key={task.id}
-              id={task.id}
-              name={task.name}
-              description={task.description ?? undefined}
-              disabled={isDragDisabled}
-            />
+            <TaskItem key={task.id} {...task} disabled={isDragDisabled} />
           ))}
         <AddTaskButton columnId={column.id} />
       </div>

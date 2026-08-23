@@ -1,5 +1,10 @@
 import { baseApi } from '@shared/api/api';
-import type { Task, TaskCreateData, TaskMoveData } from '@entities/task';
+import type {
+  Task,
+  TaskCreateData,
+  TaskMoveData,
+  TaskUpdateData,
+} from '@entities/task';
 import { optimisticUpdateTaskPosition } from '@/features/move-task';
 
 export const taskApi = baseApi.injectEndpoints({
@@ -60,8 +65,31 @@ export const taskApi = baseApi.injectEndpoints({
         });
       },
     }),
+    updateTask: build.mutation<
+      Task,
+      TaskUpdateData & { taskId: string; columnId: string }
+    >({
+      query: ({ taskId, columnId, ...taskData }) => ({
+        url: `/columns/${columnId}/tasks/${taskId}`,
+        method: 'PATCH',
+        body: taskData,
+      }),
+      invalidatesTags: ['Board', 'Task'],
+    }),
+    deleteTask: build.mutation<void, { taskId: string; columnId: string }>({
+      query: ({ taskId, columnId }) => ({
+        url: `/columns/${columnId}/tasks/${taskId}`,
+        method: 'DELETE',
+      }),
+      invalidatesTags: ['Board', 'Task'],
+    }),
   }),
 });
 
-export const { useGetTaskQuery, useCreateTaskMutation, useMoveTaskMutation } =
-  taskApi;
+export const {
+  useGetTaskQuery,
+  useCreateTaskMutation,
+  useMoveTaskMutation,
+  useUpdateTaskMutation,
+  useDeleteTaskMutation,
+} = taskApi;
