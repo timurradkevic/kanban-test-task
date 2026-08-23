@@ -65,9 +65,6 @@ export const handleDragEnd = (
   } else {
     const overIndex = targetTasks.findIndex((task) => task.id === overId);
 
-    // Визначаємо напрям вставки за реальною позицією курсора/елемента,
-    // а не за індексами в масиві — це коректно працює і для
-    // переміщення між різними колонками.
     const activeRect = active.rect.current.translated;
     const overRect = over.rect;
     const insertAfter =

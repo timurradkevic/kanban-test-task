@@ -49,7 +49,6 @@ describe('ToastManager', () => {
 
     render(<ToastManager />);
 
-    // Toasts are sorted newest first, so the 2 oldest (t0, t1) get dismissed.
     expect(dismissMock).toHaveBeenCalledTimes(2);
     expect(dismissMock).toHaveBeenCalledWith('t0');
     expect(dismissMock).toHaveBeenCalledWith('t1');

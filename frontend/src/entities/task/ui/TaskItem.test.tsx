@@ -71,7 +71,6 @@ describe('TaskItem', () => {
     await userEvent.click(screen.getByText('Write tests'));
 
     expect(screen.getByText('Task Details')).toBeInTheDocument();
-    // The details modal shows the full, non-truncated description.
     expect(screen.getAllByText('Some details').length).toBeGreaterThan(0);
   });
 

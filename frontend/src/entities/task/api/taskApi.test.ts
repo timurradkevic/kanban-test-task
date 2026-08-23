@@ -187,7 +187,6 @@ describe('taskApi', () => {
         }),
       );
 
-      // Let the optimistic update apply.
       await Promise.resolve();
       await Promise.resolve();
 

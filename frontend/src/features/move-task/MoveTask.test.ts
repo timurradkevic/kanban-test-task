@@ -124,7 +124,6 @@ describe('handleDragEnd', () => {
   it('moves a task to the end of an empty column when dropped on the column container', () => {
     const moveTask = vi.fn();
     const columns = makeColumns();
-    // dropping t-1 onto column 2's container (col-2, which has t-3)
     const event = makeDragEndEvent({ activeId: 't-1', overId: 'col-2' });
 
     handleDragEnd(event, 'b-1', columns, moveTask);
@@ -142,7 +141,6 @@ describe('handleDragEnd', () => {
   it('inserts before the target task when dropped above its center', () => {
     const moveTask = vi.fn();
     const columns = makeColumns();
-    // active task (t-1) center is above over task (t-2) center -> insert before t-2
     const event = makeDragEndEvent({
       activeId: 't-1',
       overId: 't-2',
@@ -179,7 +177,6 @@ describe('handleDragEnd', () => {
         updatedAt: '',
       },
     ];
-    // active task (t-3) center is below over task (t-2) center -> insert after t-2
     const event = makeDragEndEvent({
       activeId: 't-3',
       overId: 't-2',
@@ -214,9 +211,6 @@ describe('optimisticUpdateTaskPosition', () => {
     const patchUndo = vi.fn();
     const dispatch = vi.fn().mockReturnValue({ undo: patchUndo });
 
-    // We can't easily invoke the real updateQueryData thunk without a store,
-    // so we verify that dispatch is called with the correctly-shaped action
-    // and that the recipe mutates the draft as expected.
     let capturedRecipe:
       | ((draft: {
           columns: {
@@ -229,6 +223,7 @@ describe('optimisticUpdateTaskPosition', () => {
     vi.spyOn(boardApi.util, 'updateQueryData').mockImplementation(
       // @ts-expect-error - simplified for testing the recipe callback
       (_endpoint, _boardId, recipe) => {
+        // @ts-expect-error - recipe is typed against the full Board, we only need columns
         capturedRecipe = recipe;
         return { type: 'mock-action' };
       },
