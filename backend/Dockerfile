@@ -20,6 +20,10 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY package.json package-lock.json tsconfig.base.json ./
 COPY backend ./backend
 WORKDIR /app/backend
+# prisma.config.ts resolves DATABASE_URL eagerly even for `generate` (which
+# doesn't actually connect to a DB) — a placeholder is enough at build time;
+# the real value is supplied at runtime by the hosting platform.
+ENV DATABASE_URL="postgresql://user:password@localhost:5432/db"
 RUN npx prisma generate --config prisma.config.ts
 RUN npx tsc -p tsconfig.json
 
