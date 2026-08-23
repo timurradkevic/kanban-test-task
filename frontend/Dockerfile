@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 
-##### Dependencies ###################################################
+##### Dependencies (npm hoists everything into the root node_modules) ####
 FROM node:20-bookworm-slim AS deps
 WORKDIR /app
 COPY package.json package-lock.json ./
@@ -15,8 +15,7 @@ WORKDIR /app
 ARG VITE_API_URL
 ENV VITE_API_URL=${VITE_API_URL}
 COPY --from=deps /app/node_modules ./node_modules
-COPY --from=deps /app/frontend/node_modules ./frontend/node_modules
-COPY package.json package-lock.json ./
+COPY package.json package-lock.json tsconfig.base.json ./
 COPY frontend ./frontend
 WORKDIR /app/frontend
 RUN npm run build

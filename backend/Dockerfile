@@ -8,7 +8,7 @@ RUN apt-get update -y \
     && apt-get install -y --no-install-recommends openssl ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
-##### Dependencies (full workspace, cached) #######################
+##### Dependencies (npm hoists everything into the root node_modules) ####
 FROM base AS deps
 COPY package.json package-lock.json ./
 COPY backend/package.json ./backend/package.json
@@ -17,23 +17,27 @@ RUN npm ci --workspace=backend --include-workspace-root
 ##### Build (generate Prisma client + compile TypeScript) #########
 FROM base AS build
 COPY --from=deps /app/node_modules ./node_modules
-COPY --from=deps /app/backend/node_modules ./backend/node_modules
-COPY package.json package-lock.json ./
+COPY package.json package-lock.json tsconfig.base.json ./
 COPY backend ./backend
 WORKDIR /app/backend
 RUN npx prisma generate --config prisma.config.ts
-RUN npm run build
+RUN npx tsc -p tsconfig.json
 
 ##### Production ####################################################
 FROM base AS production
 ENV NODE_ENV=production
-WORKDIR /app/backend
+WORKDIR /app
 
-COPY --from=deps /app/backend/node_modules ./node_modules
-COPY --from=build /app/backend/dist ./dist
-COPY --from=build /app/backend/package.json ./package.json
-COPY --from=build /app/backend/prisma ./prisma
-COPY --from=build /app/backend/prisma.config.ts ./prisma.config.ts
+# node_modules stays at the repo root; Node's module resolution walks
+# up parent directories to find it, so ./backend/dist can still `require`
+# everything from here.
+COPY --from=deps /app/node_modules ./node_modules
+COPY --from=build /app/backend/dist ./backend/dist
+COPY --from=build /app/backend/package.json ./backend/package.json
+COPY --from=build /app/backend/prisma ./backend/prisma
+COPY --from=build /app/backend/prisma.config.ts ./backend/prisma.config.ts
+
+WORKDIR /app/backend
 
 # --- Runtime configuration -----------------------------------------
 # These are placeholders. Provide real values on your hosting platform
