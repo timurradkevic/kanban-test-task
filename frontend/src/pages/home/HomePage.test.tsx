@@ -3,7 +3,7 @@ import { render, screen } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
 import { HomePage } from './HomePage';
 import { Provider } from 'react-redux';
-import { store } from '@/app/store';
+import { store } from '@app/store';
 
 describe('HomePage', () => {
   it('renders without crashing', () => {

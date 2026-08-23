@@ -1,4 +1,4 @@
-import { BackButton, ReloadButton } from '@/shared/ui/Buttons';
+import { BackButton, ReloadButton } from '@shared/ui/Buttons';
 
 export const NotFound = ({
   title,

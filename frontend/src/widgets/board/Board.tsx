@@ -1,8 +1,8 @@
-import { useGetBoardQuery } from '@/entities/board';
-import { ColumnCard } from '@/entities/column/ui/ColumnCard';
-import { BackButton, CopyButton } from '@/shared/ui/Buttons';
+import { useGetBoardQuery } from '@entities/board';
+import { ColumnCard } from '@entities/column';
+import { BackButton, CopyButton } from '@shared/ui/Buttons';
 import { useNavigate } from 'react-router-dom';
-import { NotFound } from '../notFound/NotFound';
+import { NotFound } from '@widgets/notFound';
 
 const SkeletonBoard = () => {
   return (

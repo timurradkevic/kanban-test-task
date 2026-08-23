@@ -1,4 +1,4 @@
-import { useCreateBoardMutation } from '@/entities/board/api/boardApi';
+import { useCreateBoardMutation } from '@entities/board';
 import { useState } from 'react';
 import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';

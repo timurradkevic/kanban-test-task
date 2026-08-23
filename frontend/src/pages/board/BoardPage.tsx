@@ -1,4 +1,4 @@
-import { Board } from '@/widgets/board';
+import { Board } from '@widgets/board';
 import { useParams } from 'react-router-dom';
 
 export const BoardPage = () => {

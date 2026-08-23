@@ -1,5 +1,5 @@
 import { baseApi } from '@shared/api/api';
-import type { Board } from '@entities/board/model/types';
+import type { Board, BoardCreateData } from '@entities/board';
 
 export const boardApi = baseApi.injectEndpoints({
   endpoints: (build) => ({
@@ -12,7 +12,7 @@ export const boardApi = baseApi.injectEndpoints({
         { type: 'Board', id: boardId },
       ],
     }),
-    createBoard: build.mutation<Board, Pick<Board, 'name'>>({
+    createBoard: build.mutation<Board, BoardCreateData>({
       query: (boardData) => ({
         url: '/boards',
         method: 'POST',
