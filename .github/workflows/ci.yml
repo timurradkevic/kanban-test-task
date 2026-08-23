@@ -1,0 +1,77 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+env:
+  NODE_VERSION: '20'
+
+jobs:
+  backend:
+    name: Backend / lint, typecheck, test
+    runs-on: ubuntu-latest
+    env:
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/kanban_test_task
+      PORT: 3000
+      CORS_ORIGIN: http://localhost:5173
+      NODE_ENV: test
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate Prisma client
+        run: npx prisma generate --config prisma.config.ts
+        working-directory: backend
+
+      - name: Lint
+        run: npm run lint --workspace=backend
+
+      - name: Typecheck
+        run: npm run typecheck --workspace=backend
+
+      - name: Test
+        run: npm run test --workspace=backend
+
+  frontend:
+    name: Frontend / lint, typecheck, test, build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint --workspace=frontend
+
+      - name: Typecheck
+        run: npm run typecheck --workspace=frontend
+
+      - name: Test
+        run: npm run test --workspace=frontend -- --run
+
+      - name: Build
+        run: npm run build --workspace=frontend
+        env:
+          VITE_API_URL: http://localhost:3000
