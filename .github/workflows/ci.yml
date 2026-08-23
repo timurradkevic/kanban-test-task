@@ -48,6 +48,8 @@ jobs:
   frontend:
     name: Frontend / lint, typecheck, test, build
     runs-on: ubuntu-latest
+    env:
+      VITE_API_URL: http://localhost:3000
 
     steps:
       - name: Checkout
@@ -73,5 +75,3 @@ jobs:
 
       - name: Build
         run: npm run build --workspace=frontend
-        env:
-          VITE_API_URL: http://localhost:3000
