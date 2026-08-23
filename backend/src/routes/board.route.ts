@@ -6,3 +6,5 @@ export const boardRouter = Router();
 
 boardRouter.post('/', catchError(boardController.createBoard));
 boardRouter.get('/:id', catchError(boardController.getBoardById));
+boardRouter.patch('/:id', catchError(boardController.updateBoard));
+boardRouter.delete('/:id', catchError(boardController.deleteBoard));

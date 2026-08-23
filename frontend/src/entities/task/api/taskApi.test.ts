@@ -31,29 +31,6 @@ describe('taskApi', () => {
     vi.unstubAllGlobals();
   });
 
-  describe('getTask', () => {
-    it('sends a GET request to /tasks/:taskId', async () => {
-      const task = {
-        id: 't-1',
-        name: 'Task',
-        description: null,
-        order: 0,
-        columnId: 'c-1',
-      };
-      vi.mocked(fetch).mockReturnValue(jsonResponse(task));
-
-      const store = makeStore();
-      const result = await store.dispatch(
-        taskApi.endpoints.getTask.initiate('t-1'),
-      );
-
-      const request = vi.mocked(fetch).mock.calls[0][0] as Request;
-      expect(request.url).toContain('/tasks/t-1');
-      expect(request.method).toBe('GET');
-      expect(result.data).toEqual(task);
-    });
-  });
-
   describe('createTask', () => {
     it('sends a POST request to /columns/:columnId/tasks', async () => {
       const created = {

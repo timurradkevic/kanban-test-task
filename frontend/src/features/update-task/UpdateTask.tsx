@@ -1,10 +1,11 @@
 import { useUpdateTaskMutation, type Task } from '@entities/task';
-import { Pen, X } from 'lucide-react';
+import { X } from 'lucide-react';
 import { useState } from 'react';
 import { createPortal } from 'react-dom';
 import toast from 'react-hot-toast';
 import { useParams } from 'react-router-dom';
 import { useModalLock } from '@shared/lib';
+import { UpdateButton } from '@shared/ui/Buttons';
 
 export const UpdateTaskButton = ({ task }: { task: Task }) => {
   const [isFormVisible, setIsFormVisible] = useState(false);
@@ -16,12 +17,7 @@ export const UpdateTaskButton = ({ task }: { task: Task }) => {
 
   return (
     <div>
-      <button
-        onClick={toggleFormVisibility}
-        className="bg-blue-500 text-white rounded hover:bg-blue-600 hover:cursor-pointer mt-2 select-none flex items-center justify-center w-8 h-8"
-      >
-        <Pen className="inline-block w-4 h-4" />
-      </button>
+      <UpdateButton onClick={toggleFormVisibility} />
 
       {isFormVisible &&
         createPortal(

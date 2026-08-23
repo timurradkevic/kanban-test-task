@@ -1,20 +1,16 @@
-import { useDeleteTaskMutation } from '@/entities/task';
+import { useDeleteBoardMutation } from '@entities/board';
 import { useModalLock } from '@/shared/lib';
 import { DeleteButton } from '@/shared/ui/Buttons';
 import { useState } from 'react';
 import { createPortal } from 'react-dom';
 import toast from 'react-hot-toast';
+import { useNavigate } from 'react-router-dom';
 
-export const DeleteTaskButton = ({
-  taskId,
-  columnId,
-}: {
-  taskId: string;
-  columnId: string;
-}) => {
-  const [deleteTask, { isLoading }] = useDeleteTaskMutation();
+export const DeleteBoardButton = ({ boardId }: { boardId: string }) => {
+  const [deleteBoard, { isLoading }] = useDeleteBoardMutation();
   const [isFormVisible, setIsFormVisible] = useState(false);
   useModalLock(isFormVisible);
+  const navigate = useNavigate();
 
   const handleDelete = async () => {
     setIsFormVisible(true);
@@ -25,19 +21,20 @@ export const DeleteTaskButton = ({
       <DeleteButton onClick={handleDelete} isLoading={isLoading} />
       {isFormVisible &&
         createPortal(
-          <DeleteTaskConfirmation
+          <DeleteBoardConfirmation
             onConfirm={async () => {
               try {
-                await deleteTask({ taskId, columnId }).unwrap();
-                toast.success('Task deleted successfully');
+                await deleteBoard(boardId).unwrap();
+                toast.success('Board deleted successfully');
                 setIsFormVisible(false);
+                navigate('/');
               } catch {
-                toast.error('Failed to delete task');
+                toast.error('Failed to delete board');
               }
             }}
             onCancel={() => {
               setIsFormVisible(false);
-              toast('Task deletion canceled');
+              toast('Board deletion canceled');
             }}
             onClose={() => setIsFormVisible(false)}
           />,
@@ -47,7 +44,7 @@ export const DeleteTaskButton = ({
   );
 };
 
-const DeleteTaskConfirmation = ({
+const DeleteBoardConfirmation = ({
   onConfirm,
   onCancel,
   onClose,
@@ -64,7 +61,7 @@ const DeleteTaskConfirmation = ({
       <div className="bg-white p-6 rounded shadow-md w-96">
         <h2 className="text-lg font-semibold mb-4">Confirm Deletion</h2>
         <p className="mb-4">
-          Are you sure you want to delete this task? This action cannot be
+          Are you sure you want to delete this board? This action cannot be
           undone.
         </p>
         <div className="flex justify-end gap-2">

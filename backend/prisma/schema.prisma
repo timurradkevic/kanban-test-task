@@ -25,7 +25,7 @@ model Column {
   id        String   @id @default(uuid())
   name      String
   order     Int
-  board     Board    @relation(fields: [boardId], references: [id])
+  board     Board    @relation(fields: [boardId], references: [id], onDelete: Cascade)
   boardId   String
   type      ColumnType
   tasks     Task[]
@@ -38,7 +38,7 @@ model Task {
   name        String
   description String?
   order       Int
-  column      Column   @relation(fields: [columnId], references: [id])
+  column      Column   @relation(fields: [columnId], references: [id], onDelete: Cascade)
   columnId    String
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt

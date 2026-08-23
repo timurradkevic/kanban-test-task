@@ -39,7 +39,13 @@ export const HomePage = () => {
   return (
     <div className="p-4 justify-center items-center flex flex-col">
       <h1 className="text-2xl font-bold">Home</h1>
-      <div className="my-4">
+      <form
+        className="my-4"
+        onSubmit={(e) => {
+          e.preventDefault();
+          handleGoToBoard();
+        }}
+      >
         <input
           className={`w-full border border-gray-300 rounded px-2 py-1 mr-2 mb-4 hover:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 ${boardIdError ? 'border-red-500' : ''}`}
           value={boardId}
@@ -47,16 +53,32 @@ export const HomePage = () => {
             setBoardId(e.target.value);
             if (boardIdError) setBoardIdError(false);
           }}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              e.preventDefault();
+              handleGoToBoard();
+            }
+            if (e.key === 'Escape') {
+              setBoardId('');
+              setBoardIdError(false);
+            }
+          }}
           placeholder="Enter Board ID"
         />
         <button
           className="bg-blue-500 text-white px-4 py-2 rounded hover:cursor-pointer hover:bg-blue-600"
-          onClick={handleGoToBoard}
+          type="submit"
         >
           Go to board
         </button>
-      </div>
-      <div className="my-4">
+      </form>
+      <form
+        className="my-4"
+        onSubmit={(e) => {
+          e.preventDefault();
+          handleCreateBoard(newBoardName);
+        }}
+      >
         <input
           className={`w-full border border-gray-300 rounded px-2 py-1 mr-2 mb-4 hover:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-500 ${boardNameError ? 'border-red-500' : ''}`}
           value={newBoardName}
@@ -64,16 +86,26 @@ export const HomePage = () => {
             setNewBoardName(e.target.value);
             if (boardNameError) setBoardNameError(false);
           }}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              e.preventDefault();
+              handleCreateBoard(newBoardName);
+            }
+            if (e.key === 'Escape') {
+              setNewBoardName('');
+              setBoardNameError(false);
+            }
+          }}
           placeholder="Enter New Board Name"
         />
         <button
           className="bg-green-500 text-white px-4 py-2 rounded hover:cursor-pointer hover:bg-green-600"
-          onClick={() => handleCreateBoard(newBoardName)}
+          type="submit"
           disabled={isLoading}
         >
           Create Board
         </button>
-      </div>
+      </form>
     </div>
   );
 };

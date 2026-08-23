@@ -9,6 +9,8 @@ vi.mock('../config/prisma.js', () => ({
     board: {
       findUnique: vi.fn(),
       create: vi.fn(),
+      update: vi.fn(),
+      delete: vi.fn(),
     },
   },
 }));
@@ -116,6 +118,57 @@ describe('boardService', () => {
       expect(prisma.board.create).toHaveBeenCalledWith(
         expect.objectContaining({ include: INCLUDE_COLUMNS_WITH_TASKS }),
       );
+    });
+  });
+
+  describe('updateBoard', () => {
+    it('updates the board and returns it with its columns and tasks', async () => {
+      const updatedBoard = {
+        ...makeBoard({ name: 'Updated Board' }),
+        columns: [],
+      };
+      vi.mocked(prisma.board.update).mockResolvedValue(
+        updatedBoard as unknown as Board,
+      );
+
+      const result = await boardService.updateBoard('board-1', {
+        name: 'Updated Board',
+      });
+
+      expect(result).toEqual(updatedBoard);
+    });
+
+    it('requests the board to be updated with ordered columns and tasks', async () => {
+      vi.mocked(prisma.board.update).mockResolvedValue(
+        makeBoard() as unknown as Board,
+      );
+
+      await boardService.updateBoard('board-1', { name: 'Updated Board' });
+
+      expect(prisma.board.update).toHaveBeenCalledWith({
+        where: { id: 'board-1' },
+        data: { name: 'Updated Board' },
+        include: INCLUDE_COLUMNS_WITH_TASKS,
+      });
+    });
+  });
+
+  describe('deleteBoard', () => {
+    it('returns true when the board is deleted', async () => {
+      vi.mocked(prisma.board.delete).mockResolvedValue(makeBoard());
+
+      const result = await boardService.deleteBoard('board-1');
+
+      expect(result).toBe(true);
+      expect(prisma.board.delete).toHaveBeenCalledWith({
+        where: { id: 'board-1' },
+      });
+    });
+
+    it('returns false when the board does not exist', async () => {
+      vi.mocked(prisma.board.delete).mockResolvedValue(null as never);
+
+      await expect(boardService.deleteBoard('missing')).resolves.toBe(false);
     });
   });
 });

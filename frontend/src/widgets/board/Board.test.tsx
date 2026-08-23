@@ -17,11 +17,34 @@ let queryResult: {
 
 vi.mock('@entities/board', () => ({
   useGetBoardQuery: () => queryResult,
+  useUpdateBoardMutation: () => [vi.fn(), { isLoading: false }],
 }));
 
 vi.mock('@entities/task', () => ({
   useMoveTaskMutation: () => [moveTaskMock, { isLoading: false }],
   TaskItemPreview: ({ name }: { name: string }) => <div>preview-{name}</div>,
+}));
+
+vi.mock('@shared/ui/Buttons', () => ({
+  BackButton: () => <button>Back</button>,
+  CopyButton: ({ textToCopy }: { textToCopy: string }) => (
+    <button>{textToCopy}</button>
+  ),
+  UpdateButton: ({ onClick }: { onClick?: () => void }) => (
+    <button onClick={onClick}>Update</button>
+  ),
+}));
+
+vi.mock('@features/update-board', () => ({
+  BoardName: ({ board }: { board: { name: string } }) => (
+    <div>board-name-{board.name}</div>
+  ),
+}));
+
+vi.mock('@features/delete-board', () => ({
+  DeleteBoardButton: ({ boardId }: { boardId: string }) => (
+    <button>delete-{boardId}</button>
+  ),
 }));
 
 vi.mock('@entities/column', () => ({
@@ -166,7 +189,7 @@ describe('Board', () => {
     };
     render(<Board boardId="board-id-1234567890" />);
 
-    expect(screen.getByText('My Kanban Board')).toBeInTheDocument();
+    expect(screen.getByText('board-name-My Kanban Board')).toBeInTheDocument();
     expect(screen.getByText('column-Todo-not-drop-target')).toBeInTheDocument();
     expect(screen.getByText('column-Done-not-drop-target')).toBeInTheDocument();
   });
@@ -186,7 +209,7 @@ describe('Board', () => {
     queryResult.data = { id: 'b-1', name: 'Empty Board', columns: [] };
     render(<Board boardId="b-1" />);
 
-    expect(screen.getByText('Empty Board')).toBeInTheDocument();
+    expect(screen.getByText('board-name-Empty Board')).toBeInTheDocument();
     expect(screen.queryByText(/^column-/)).not.toBeInTheDocument();
   });
 

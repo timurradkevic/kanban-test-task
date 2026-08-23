@@ -33,4 +33,27 @@ export const boardController = {
 
     res.status(201).json(board);
   },
+  updateBoard: async (req: Request, res: Response) => {
+    const { id } = BoardIdParam.parse(req.params);
+    const { name } = BoardData.partial().parse(req.body);
+
+    const updatedBoard = await boardService.updateBoard(id, { name });
+
+    if (!updatedBoard) {
+      throw new AppError('Board not found', 404);
+    }
+
+    res.json(updatedBoard);
+  },
+  deleteBoard: async (req: Request, res: Response) => {
+    const { id } = BoardIdParam.parse(req.params);
+
+    const deleted = await boardService.deleteBoard(id);
+
+    if (!deleted) {
+      throw new AppError('Board not found', 404);
+    }
+
+    res.status(204).send();
+  },
 };

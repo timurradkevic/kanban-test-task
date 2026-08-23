@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { useGetBoardQuery } from '@entities/board';
+import { useGetBoardQuery, useUpdateBoardMutation } from '@entities/board';
 import { ColumnCard } from '@entities/column';
-import { BackButton, CopyButton } from '@shared/ui/Buttons';
+import { BackButton, CopyButton, UpdateButton } from '@shared/ui/Buttons';
 import { useNavigate } from 'react-router-dom';
 import { NotFound } from '@widgets/notFound';
 import {
@@ -26,6 +26,8 @@ import { handleDragEnd, resolveColumnId } from '@/features/move-task';
 import { useMoveTaskMutation, TaskItemPreview } from '@entities/task';
 import { useAppSelector } from '@app/store/hooks';
 import { selectIsAnyModalOpen } from '@shared/model';
+import { BoardName } from '@features/update-board';
+import { DeleteBoardButton } from '@features/delete-board';
 
 const SkeletonBoard = () => {
   return (
@@ -75,6 +77,9 @@ export const Board = ({ boardId }: { boardId: string | undefined }) => {
 
   const [activeTaskId, setActiveTaskId] = useState<string | null>(null);
   const [overColumnId, setOverColumnId] = useState<string | null>(null);
+
+  const [isRenaming, setIsRenaming] = useState(false);
+  const [updateBoard] = useUpdateBoardMutation();
 
   const isNotFoundError = (
     currentError: typeof error,
@@ -175,8 +180,19 @@ export const Board = ({ boardId }: { boardId: string | undefined }) => {
   return (
     <>
       <BackButton navigate={navigate} />
+      <div className="flex items-center justify-between mx-2">
+        <BoardName
+          board={board}
+          isRenaming={isRenaming}
+          setIsRenaming={setIsRenaming}
+          updateBoard={updateBoard}
+        />
+        <div className="flex gap-2">
+          <UpdateButton onClick={() => setIsRenaming(true)} />
+          <DeleteBoardButton boardId={board.id} />
+        </div>
+      </div>
       <div className="mx-2">
-        <h1 className="text-2xl font-bold mb-2">{board.name}</h1>
         <div className="flex items-center">
           <span className="text-gray-600 mr-4">{board.id.slice(0, 12)}...</span>
           <CopyButton textToCopy={board.id} textLabel="Board ID" />

@@ -1,2 +1,7 @@
 export type { Board, BoardCreateData } from './model/types';
-export { useGetBoardQuery, useCreateBoardMutation } from './api/boardApi';
+export {
+  useGetBoardQuery,
+  useCreateBoardMutation,
+  useUpdateBoardMutation,
+  useDeleteBoardMutation,
+} from './api/boardApi';

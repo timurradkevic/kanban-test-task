@@ -44,4 +44,27 @@ export const boardService = {
       },
     });
   },
+  updateBoard: async (id: string, boardData: Partial<BoardData>) => {
+    return prisma.board.update({
+      where: { id },
+      data: boardData,
+      include: {
+        columns: {
+          orderBy: { order: 'asc' },
+          include: {
+            tasks: {
+              orderBy: { order: 'asc' },
+            },
+          },
+        },
+      },
+    });
+  },
+  deleteBoard: async (id: string) => {
+    const deletedBoard = await prisma.board.delete({
+      where: { id },
+    });
+
+    return !!deletedBoard;
+  },
 };

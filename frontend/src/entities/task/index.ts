@@ -5,7 +5,6 @@ export type {
   TaskMoveData,
 } from './model/types';
 export {
-  useGetTaskQuery,
   useCreateTaskMutation,
   useMoveTaskMutation,
   useUpdateTaskMutation,

@@ -9,6 +9,8 @@ vi.mock('../services/board.service.js', () => ({
   boardService: {
     getBoardById: vi.fn(),
     createBoard: vi.fn(),
+    updateBoard: vi.fn(),
+    deleteBoard: vi.fn(),
   },
 }));
 
@@ -165,6 +167,105 @@ describe('boardController', () => {
         ZodError,
       );
       expect(boardService.createBoard).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('updateBoard', () => {
+    it('updates the board and responds with it', async () => {
+      const board = makeBoard({ name: 'Updated Board' });
+      vi.mocked(boardService.updateBoard).mockResolvedValue(
+        board as unknown as never,
+      );
+
+      const req = makeReq<Request<{ id: string }>>({
+        params: { id: BOARD_ID },
+        body: { name: '  Updated Board  ' },
+      });
+      const res = makeRes();
+
+      await boardController.updateBoard(req, res);
+
+      expect(boardService.updateBoard).toHaveBeenCalledWith(BOARD_ID, {
+        name: 'Updated Board',
+      });
+      expect(res.json).toHaveBeenCalledWith(board);
+    });
+
+    it('throws a 404 AppError and never responds when the board does not exist', async () => {
+      vi.mocked(boardService.updateBoard).mockResolvedValue(
+        null as unknown as never,
+      );
+
+      const req = makeReq<Request<{ id: string }>>({
+        params: { id: BOARD_ID },
+        body: { name: 'Updated Board' },
+      });
+      const res = makeRes();
+
+      await expect(boardController.updateBoard(req, res)).rejects.toMatchObject(
+        { message: 'Board not found', statusCode: 404 },
+      );
+      expect(res.json).not.toHaveBeenCalled();
+    });
+
+    it('rejects a non-UUID id before calling the service', async () => {
+      const req = makeReq<Request<{ id: string }>>({
+        params: { id: 'not-a-uuid' },
+        body: { name: 'Updated Board' },
+      });
+      const res = makeRes();
+
+      await expect(boardController.updateBoard(req, res)).rejects.toThrow(
+        ZodError,
+      );
+      expect(boardService.updateBoard).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('deleteBoard', () => {
+    it('deletes the board and responds 204', async () => {
+      vi.mocked(boardService.deleteBoard).mockResolvedValue(
+        true as unknown as never,
+      );
+
+      const req = makeReq<Request<{ id: string }>>({
+        params: { id: BOARD_ID },
+      });
+      const res = makeRes();
+
+      await boardController.deleteBoard(req, res);
+
+      expect(boardService.deleteBoard).toHaveBeenCalledWith(BOARD_ID);
+      expect(res.status).toHaveBeenCalledWith(204);
+      expect(res.send).toHaveBeenCalledWith();
+    });
+
+    it('throws a 404 AppError and never responds when the board does not exist', async () => {
+      vi.mocked(boardService.deleteBoard).mockResolvedValue(
+        false as unknown as never,
+      );
+
+      const req = makeReq<Request<{ id: string }>>({
+        params: { id: BOARD_ID },
+      });
+      const res = makeRes();
+
+      await expect(boardController.deleteBoard(req, res)).rejects.toMatchObject(
+        { message: 'Board not found', statusCode: 404 },
+      );
+      expect(res.send).not.toHaveBeenCalled();
+    });
+
+    it('rejects a non-UUID id before calling the service', async () => {
+      const req = makeReq<Request<{ id: string }>>({
+        params: { id: 'not-a-uuid' },
+      });
+      const res = makeRes();
+
+      await expect(boardController.deleteBoard(req, res)).rejects.toThrow(
+        ZodError,
+      );
+      expect(boardService.deleteBoard).not.toHaveBeenCalled();
     });
   });
 });

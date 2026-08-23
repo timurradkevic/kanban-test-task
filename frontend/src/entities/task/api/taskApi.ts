@@ -9,13 +9,6 @@ import { optimisticUpdateTaskPosition } from '@/features/move-task';
 
 export const taskApi = baseApi.injectEndpoints({
   endpoints: (build) => ({
-    getTask: build.query<Task, string>({
-      query: (taskId) => ({
-        url: `/tasks/${taskId}`,
-        method: 'GET',
-      }),
-      providesTags: (_result, _error, taskId) => [{ type: 'Task', id: taskId }],
-    }),
     createTask: build.mutation<Task, TaskCreateData>({
       query: (taskData) => ({
         url: `/columns/${taskData.columnId}/tasks`,
@@ -87,7 +80,6 @@ export const taskApi = baseApi.injectEndpoints({
 });
 
 export const {
-  useGetTaskQuery,
   useCreateTaskMutation,
   useMoveTaskMutation,
   useUpdateTaskMutation,
