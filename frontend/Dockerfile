@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1
 
 ##### Dependencies (npm hoists everything into the root node_modules) ####
-FROM node:20-bookworm-slim AS deps
+FROM node:22-bookworm-slim AS deps
 WORKDIR /app
 COPY package.json package-lock.json ./
 COPY frontend/package.json ./frontend/package.json
@@ -10,7 +10,7 @@ RUN npm ci --workspace=frontend --include-workspace-root
 ##### Build ###########################################################
 # Vite inlines env vars at build time, so the API URL must be supplied
 # as a build argument (not a runtime env var).
-FROM node:20-bookworm-slim AS build
+FROM node:22-bookworm-slim AS build
 WORKDIR /app
 ARG VITE_API_URL
 ENV VITE_API_URL=${VITE_API_URL}
