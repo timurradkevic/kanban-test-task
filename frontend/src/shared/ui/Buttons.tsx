@@ -20,9 +20,9 @@ export const BackButton = ({
   return (
     <button
       onClick={() => navigate('/')}
-      className="bg-blue-500 text-white rounded hover:bg-blue-600 hover:cursor-pointer w-8 h-8 flex items-center justify-center"
+      className="bg-blue-500 text-white rounded hover:bg-blue-600 hover:cursor-pointer w-8 h-8 flex items-center justify-center mb-2"
     >
-      <ChevronLeftIcon className="inline-block w-4 h-4 mr-1" />
+      <ChevronLeftIcon className="inline-block w-4 h-4 mr-0.5" />
     </button>
   );
 };
